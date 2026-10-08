@@ -2492,5 +2492,71 @@
       fetch(endpoint,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}}).then(function(r){if(!r.ok)throw Error('Submission failed');status.textContent='Thank you! Your estimate request was submitted.';form.reset();}).catch(function(){status.textContent='We could not send your request. Please contact us by phone or email.';});
     });
   }).catch(function(e){console.error('CMS content could not load:',e);});
-})();</script></body>
+})();</script>
+<script>
+(function () {
+  const prefix = "/site-2";
+
+  function fixImagePath(path) {
+    if (typeof path !== "string") return path;
+
+    if (path.startsWith("/images/")) {
+      return prefix + path;
+    }
+
+    return path;
+  }
+
+  function fixImages() {
+    document.querySelectorAll("img").forEach(function (img) {
+      const src = img.getAttribute("src");
+
+      if (src && src.startsWith("/images/")) {
+        img.setAttribute("src", fixImagePath(src));
+      }
+
+      const srcset = img.getAttribute("srcset");
+
+      if (srcset && srcset.includes("/images/")) {
+        img.setAttribute(
+          "srcset",
+          srcset.replace(/\/images\//g, prefix + "/images/")
+        );
+      }
+    });
+
+    document.querySelectorAll("*").forEach(function (element) {
+      const bg = element.style.backgroundImage;
+
+      if (bg && bg.includes("/images/")) {
+        element.style.backgroundImage =
+          bg.replace(/\/images\//g, prefix + "/images/");
+      }
+    });
+  }
+
+  let scheduled = false;
+
+  const observer = new MutationObserver(function () {
+    if (scheduled) return;
+
+    scheduled = true;
+
+    requestAnimationFrame(function () {
+      scheduled = false;
+      fixImages();
+    });
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  fixImages();
+
+  window.addEventListener("load", fixImages);
+})();
+</script>
+</body>
 </html>
