@@ -1,7 +1,9 @@
 backend:
-  name: turbo-github
-  turbo_site_id: d8c94b65-ee79-4188-b08f-aea2a8b57a63
+  name: github
+  repo: nickwesner3-stack/site-2
   branch: main
+  base_url: https://site2-off.nickwesner3.workers.dev
+  auth_endpoint: auth
 media_folder: images/uploads
 public_folder: /images/uploads
 collections:
