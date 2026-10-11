@@ -2635,46 +2635,43 @@
     }
   }
 
-  async function getLocation(address) {
-    const endpoint =
-      "https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress";
+ async function getLocation(address) {
+  const endpoint = "https://nominatim.openstreetmap.org/search";
 
-    const params = new URLSearchParams({
-      address: address,
-      benchmark: "Public_AR_Current",
-      vintage: "Current_Current",
-      format: "json"
-    });
+  const params = new URLSearchParams({
+    q: address,
+    format: "json",
+    addressdetails: "1",
+    limit: "1",
+    countrycodes: "us"
+  });
 
-    const response = await fetch(endpoint + "?" + params);
+  const response = await fetch(endpoint + "?" + params);
 
-    if (!response.ok) {
-      throw new Error("Location lookup failed");
-    }
-
-    const result = await response.json();
-    const matches = result.result?.addressMatches || [];
-
-    if (!matches.length) {
-      throw new Error("Address not recognized");
-    }
-
-    const match = matches[0];
-    const geography = match.geographies || {};
-
-    const countyData = geography.Counties?.[0];
-    const stateData = geography.States?.[0];
-
-    if (!countyData || !stateData) {
-      throw new Error("County or state not found");
-    }
-
-    return {
-      county: countyData.NAME,
-      state: stateData.NAME
-    };
+  if (!response.ok) {
+    throw new Error("Location lookup failed");
   }
 
+  const results = await response.json();
+
+  if (!results.length) {
+    throw new Error("Address not recognized");
+  }
+
+  const location = results[0].address || {};
+
+  const state = location.state;
+  const county = location.county;
+
+  if (!state || !county) {
+    throw new Error("County or state not found");
+  }
+
+  return {
+    state: state,
+    county: county
+  };
+}
   async function initializeLocation() {
     try {
       const response = await fetch(
