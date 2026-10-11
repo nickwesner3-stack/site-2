@@ -578,18 +578,6 @@ collections:
         name: image_003
         widget: image
         required: false
-      - label: image_004 — photo-1558521558-037f1cb027c5?auto=format&fit=crop&w=16
-        name: image_004
-        widget: image
-        required: false
-      - label: image_005 — photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w
-        name: image_005
-        widget: image
-        required: false
-      - label: image_006 — photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w
-        name: image_006
-        widget: image
-        required: false
     - label: Form Placeholder Text
       name: site_placeholders
       widget: object
