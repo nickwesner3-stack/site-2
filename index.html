@@ -2558,5 +2558,166 @@
   window.addEventListener("load", fixImages);
 })();
 </script>
+<!-- AUTOMATIC BUSINESS LOCATION AND SERVICE AREA -->
+<script>
+(function () {
+  "use strict";
+
+  const section = document.getElementById("service-area");
+  if (!section) return;
+
+  const text = (number) =>
+    section.querySelector('[data-cms-text="text_' + number + '"]');
+
+  function updateLocation(state, county, address, mapUrl) {
+    const heading = text("077");
+    const description = text("078");
+    const labels = ["079", "080", "081", "082"].map(text);
+    const cardTitle = text("086");
+    const cardDescription = text("087");
+    const map = section.querySelector("iframe");
+
+    if (heading) heading.textContent = "Proudly serving " + state + ".";
+
+    if (description) {
+      description.textContent =
+        "Providing professional landscaping and outdoor services in " +
+        county + ", " + state +
+        ". Contact us to confirm service at your property.";
+    }
+
+    const names = [
+      county,
+      state,
+      "Local Communities",
+      "Surrounding Areas"
+    ];
+
+    labels.forEach(function (element, index) {
+      if (element) element.textContent = names[index];
+    });
+
+    if (cardTitle) cardTitle.textContent = state;
+
+    if (cardDescription) {
+      cardDescription.textContent =
+        "Based in " + county + ", " + state +
+        ". Contact us to confirm availability in your area.";
+    }
+
+    if (map) {
+      let url = "";
+
+      if (mapUrl) {
+        try {
+          const parsed = new URL(mapUrl);
+          if (
+            parsed.protocol === "https:" &&
+            (parsed.hostname === "www.google.com" ||
+             parsed.hostname === "maps.google.com") &&
+            parsed.pathname.includes("/maps/embed")
+          ) {
+            url = parsed.href;
+          }
+        } catch (error) {
+          console.warn("Invalid map URL");
+        }
+      }
+
+      if (!url) {
+        url = "https://www.google.com/maps?q=" +
+          encodeURIComponent(address) +
+          "&z=11&output=embed";
+      }
+
+      map.src = url;
+      map.title = "Business location in " + state;
+    }
+  }
+
+  async function getLocation(address) {
+    const endpoint =
+      "https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress";
+
+    const params = new URLSearchParams({
+      address: address,
+      benchmark: "Public_AR_Current",
+      vintage: "Current_Current",
+      format: "json"
+    });
+
+    const response = await fetch(endpoint + "?" + params);
+
+    if (!response.ok) {
+      throw new Error("Location lookup failed");
+    }
+
+    const result = await response.json();
+    const matches = result.result?.addressMatches || [];
+
+    if (!matches.length) {
+      throw new Error("Address not recognized");
+    }
+
+    const match = matches[0];
+    const geography = match.geographies || {};
+
+    const countyData = geography.Counties?.[0];
+    const stateData = geography.States?.[0];
+
+    if (!countyData || !stateData) {
+      throw new Error("County or state not found");
+    }
+
+    return {
+      county: countyData.NAME,
+      state: stateData.NAME
+    };
+  }
+
+  async function initializeLocation() {
+    try {
+      const response = await fetch(
+        "content/homepage.yml?location=" + Date.now()
+      );
+
+      if (!response.ok) {
+        throw new Error("Homepage settings unavailable");
+      }
+
+      const yaml = await response.text();
+      const data = window.jsyaml.load(yaml) || {};
+
+      const address = String(data.address || "").trim();
+      const mapUrl = String(data.map_url || "").trim();
+
+      if (!address) {
+        console.info("No business address configured yet.");
+        return;
+      }
+
+      const location = await getLocation(address);
+
+      // Allow the existing CMS text loader to finish first.
+      setTimeout(function () {
+        updateLocation(
+          location.state,
+          location.county,
+          address,
+          mapUrl
+        );
+      }, 1500);
+
+    } catch (error) {
+      console.warn(
+        "Automatic location update unavailable:",
+        error.message
+      );
+    }
+  }
+
+  initializeLocation();
+})();
+</script>    
 </body>
 </html>
