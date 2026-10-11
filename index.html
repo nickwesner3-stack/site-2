@@ -1569,6 +1569,11 @@
       }
     }
   </style>
+<style>
+  #service-area:not(.location-ready) {
+    visibility: hidden;
+  }
+</style>    
 </head>
 <body>
 <!-- ====================================================
@@ -2690,6 +2695,7 @@
 
       if (!address) {
         console.info("No business address configured yet.");
+        document.getElementById("service-area")?.classList.add("location-ready");  
         return;
       }
 
@@ -2703,6 +2709,9 @@
           address,
           mapUrl
         );
+
+      document.getElementById("service-area")?.classList.add("location-ready");    
+      
       }, 1500);
 
     } catch (error) {
@@ -2710,6 +2719,7 @@
         "Automatic location update unavailable:",
         error.message
       );
+       document.getElementById("service-area")?.classList.add("location-ready"); 
     }
   }
 
