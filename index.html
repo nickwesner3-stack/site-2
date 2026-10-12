@@ -2305,7 +2305,7 @@
     }
 
 
-    fetch("/site-2/content/homepage.yml?cache=" + Date.now())
+    fetch("content/homepage.yml?cache=" + Date.now())
 
       .then(function (response) {
 
@@ -2483,7 +2483,7 @@
   </script>
 <script>(function(){
   function apply(obj, selector, fn) {if(!obj)return;Object.entries(obj).forEach(function(pair){document.querySelectorAll(selector+'[data-cms-'+selector.slice(1)+']');});}
-  fetch('/content/homepage.yml?cms='+Date.now()).then(function(r){if(!r.ok)throw Error('Content not found');return r.text();}).then(function(y){
+  fetch('content/homepage.yml?cms='+Date.now()).then(function(r){if(!r.ok)throw Error('Content not found');return r.text();}).then(function(y){
     var d=window.jsyaml.load(y)||{};
     Object.entries(d.site_text||{}).forEach(function(e){document.querySelectorAll('[data-cms-text="'+e[0]+'"]').forEach(function(n){n.textContent=e[1]||'';});});
     Object.entries(d.site_images||{}).forEach(function(e){document.querySelectorAll('[data-cms-image="'+e[0]+'"]').forEach(function(n){if(e[1])n.src=e[1];});});
@@ -2500,7 +2500,7 @@
 })();</script>
 <script>
 (function () {
-  const prefix = "/site-2";
+  const prefix = new URL(".", window.location.href).pathname.replace(/\/$/, "");
 
   function fixImagePath(path) {
     if (typeof path !== "string") return path;
