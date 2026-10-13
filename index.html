@@ -2344,7 +2344,30 @@
           );
         }
 
+/* Business logo */
+if (data.business_logo) {
+  document.querySelectorAll(".brand-mark").forEach(function (mark) {
+    const logo = document.createElement("img");
 
+    logo.alt = "Business logo";
+    logo.src = data.business_logo;
+    logo.style.cssText =
+      "width:auto;height:36px;max-width:100px;object-fit:contain;";
+
+    logo.onload = function () {
+      const originalIcon = mark.querySelector("svg");
+
+      if (originalIcon) {
+        originalIcon.remove();
+      }
+
+      mark.style.cssText =
+        "width:auto;height:36px;border:none;border-radius:0;display:flex;align-items:center;";
+
+      mark.appendChild(logo);
+    };
+  });
+}
         /* Main headline */
 
         if (data.headline) {
