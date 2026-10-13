@@ -2699,8 +2699,39 @@
         return;
       }
 
-      const location = await getLocation(address);
+      const map = section.querySelector("iframe");
 
+if (map) {
+  let googleMapUrl = "https://www.google.com/maps?q=" +
+    encodeURIComponent(address) + "&z=17&output=embed";
+
+  if (mapUrl) {
+    try {
+      const custom = new URL(mapUrl);
+      if (
+        custom.protocol === "https:" &&
+        ["www.google.com", "maps.google.com"].includes(custom.hostname) &&
+        custom.pathname.includes("/maps/embed")
+      ) {
+        googleMapUrl = custom.href;
+      }
+    } catch (error) {
+      console.warn("Invalid Google Maps embed URL");
+    }
+  }
+
+  map.src = googleMapUrl;
+}
+
+const location = await getLocation(address).catch(function (error) {
+  console.warn("Service-area lookup unavailable:", error.message);
+  return null;
+});
+
+if (!location) {
+  section.classList.add("location-ready");
+  return;
+}
       // Allow the existing CMS text loader to finish first.
       setTimeout(function () {
         updateLocation(
